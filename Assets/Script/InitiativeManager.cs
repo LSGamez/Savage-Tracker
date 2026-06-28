@@ -152,6 +152,11 @@ public class InitiativeManager : MonoBehaviour
         deckAtual = new List<Cartas>(Deck.Instancia.baralho);
     }
 
+    public void VoltarParaMenu()
+    {
+        telaIniciativa.SetActive(false);
+        ResetarEEmbaralhar();
+    }
 }
 
 
