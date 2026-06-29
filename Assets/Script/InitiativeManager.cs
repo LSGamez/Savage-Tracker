@@ -12,15 +12,19 @@ public class InitiativeManager : MonoBehaviour
     [SerializeField] private IniciativaItem iniciativaPrefab;
     [SerializeField] private Transform conteudo;
     [SerializeField] private GameObject telaIniciativa;
+    [SerializeField] private GameObject telaReroll;
     private List<GameObject> listaIniciativa;
     private List<IniciativaItem> iniciativa = new List<IniciativaItem>();
     List<Cartas> deckAtual = new List<Cartas>();
 
     private bool SaiuCoringa = false;
 
+    public IniciativaItem itemSelecionadoReroll = null;
+
     void Start()
     {
         telaIniciativa.SetActive(false);
+        telaReroll.SetActive(false);
         ResetarEEmbaralhar();
     }
 
@@ -43,7 +47,7 @@ public class InitiativeManager : MonoBehaviour
 
             novoItem.ConfigurarItemIniciativa(textoOriginal, () =>
             {
-                //Sorteio();
+                AbrirFecharRerrolar(novoItem);
             }, carta);
 
             iniciativa.Add(novoItem);
@@ -53,18 +57,54 @@ public class InitiativeManager : MonoBehaviour
         AtualizarOrdem();
     }
 
-    private Cartas Sorteio()
+    public void Fechar()
     {
-        if(deckAtual == null || deckAtual.Count == 0)
+        itemSelecionadoReroll = null;
+        telaReroll.SetActive(!telaReroll.activeSelf);
+    }
+    public void AbrirFecharRerrolar(IniciativaItem itemClicado = null)
+    {
+        if (telaReroll.activeSelf) itemSelecionadoReroll = null;
+        else itemSelecionadoReroll = itemClicado;
+
+        telaReroll.SetActive(!telaReroll.activeSelf);
+    }
+    public void VantagemComplicacao(bool vantagem)
+    {
+        IniciativaItem item = new IniciativaItem();
+        item.ConfigurarItemIniciativa("", () => { }, Sorteio());
+
+        print("Item Novo " + item.cartaAtual._numero + item.cartaAtual._naipe);
+        print("Item Antigo " + itemSelecionadoReroll.cartaAtual._numero + itemSelecionadoReroll.cartaAtual._naipe);
+
+        print(" Nova " + DataCarta(item) + " Antiga " + DataCarta(itemSelecionadoReroll));
+        print(DataCarta(item) > DataCarta(itemSelecionadoReroll));
+
+        if (vantagem)
         {
-            Debug.LogWarning("Deck Vazio");
-            ResetarEEmbaralhar();
-            if(deckAtual.Count == 0)
-            {
-                Debug.LogError("Baralho original está vazio");
-                return null;
-            }
+            if (DataCarta(item) > DataCarta(itemSelecionadoReroll))
+                itemSelecionadoReroll.cartaAtual = item.cartaAtual;
         }
+        else
+        {
+            if (DataCarta(item) < DataCarta(itemSelecionadoReroll))
+                itemSelecionadoReroll.cartaAtual = item.cartaAtual;
+        }
+
+        Organizador();
+        AtualizarOrdem();
+        AbrirFecharRerrolar();
+    }
+
+    public Cartas Sorteio()
+    {
+        if (deckAtual == null || deckAtual.Count == 0)
+        {
+            ResetarEEmbaralhar();
+            if (deckAtual.Count == 0) return null;
+
+        }
+
         int index = Random.Range(0, deckAtual.Count);
 
         Cartas cartaSorteada = deckAtual[index];
@@ -76,7 +116,7 @@ public class InitiativeManager : MonoBehaviour
 
     }
 
-    private void Organizador()
+    public void Organizador()
     {
         int N = iniciativa.Count;
 
@@ -146,6 +186,7 @@ public class InitiativeManager : MonoBehaviour
             SaiuCoringa = false;
         }
     }
+
     private void ResetarEEmbaralhar()
     {
         deckAtual.Clear();
@@ -157,6 +198,5 @@ public class InitiativeManager : MonoBehaviour
         telaIniciativa.SetActive(false);
         ResetarEEmbaralhar();
     }
+
 }
-
-
