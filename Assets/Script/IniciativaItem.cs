@@ -10,9 +10,9 @@ public class IniciativaItem : MonoBehaviour
 
     public void ConfigurarItem(string texto, System.Action acao)
     {
-        if(textoIniciativa != null) textoIniciativa.text = texto;
+        if (textoIniciativa != null) textoIniciativa.text = texto;
 
-        if(botaoIniciativa != null)
+        if (botaoIniciativa != null)
         {
             botaoIniciativa.onClick.RemoveAllListeners();
             botaoIniciativa.onClick.AddListener(() => acao?.Invoke());
@@ -21,9 +21,9 @@ public class IniciativaItem : MonoBehaviour
 
     public void ConfigurarItemIniciativa(string texto, System.Action acao, Cartas cartaRecebida)
     {
-        if(textoIniciativa != null) textoIniciativa.text = texto;
+        if (textoIniciativa != null) textoIniciativa.text = texto;
 
-        if(botaoIniciativa != null)
+        if (botaoIniciativa != null)
         {
             botaoIniciativa.onClick.RemoveAllListeners();
             botaoIniciativa.onClick.AddListener(() => acao?.Invoke());
@@ -33,5 +33,11 @@ public class IniciativaItem : MonoBehaviour
 
         cartaAtual = cartaRecebida;
 
+    }
+
+    public void MudarCartaIniciativa()
+    {
+        botaoIniciativa.GetComponentInChildren<TextMeshProUGUI>().text = cartaAtual._numero;
+        botaoIniciativa.GetComponent<Image>().sprite = cartaAtual.spriteNaipe;
     }
 }

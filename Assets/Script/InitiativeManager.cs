@@ -57,39 +57,48 @@ public class InitiativeManager : MonoBehaviour
         AtualizarOrdem();
     }
 
-    public void Fechar()
+    public void Fechar() // Fecha Janela de Rerrolagem pelo botão de voltar
     {
         itemSelecionadoReroll = null;
         telaReroll.SetActive(!telaReroll.activeSelf);
     }
-    public void AbrirFecharRerrolar(IniciativaItem itemClicado = null)
+    public void AbrirFecharRerrolar(IniciativaItem itemClicado = null) // Fecha janela de rerrolagem de quando clicar no botão de Vantagem ou Complicação 
     {
         if (telaReroll.activeSelf) itemSelecionadoReroll = null;
         else itemSelecionadoReroll = itemClicado;
 
         telaReroll.SetActive(!telaReroll.activeSelf);
     }
-    public void VantagemComplicacao(bool vantagem)
+    public void VantagemComplicacao(bool vantagem) // Rerolagem de uma carta da iniciativa
     {
+        bool alterou = false;
         IniciativaItem item = new IniciativaItem();
         item.ConfigurarItemIniciativa("", () => { }, Sorteio());
 
         print("Item Novo " + item.cartaAtual._numero + item.cartaAtual._naipe);
         print("Item Antigo " + itemSelecionadoReroll.cartaAtual._numero + itemSelecionadoReroll.cartaAtual._naipe);
 
+        print(" Nova " + NaipeCarta(item) + " Antiga " + NaipeCarta(itemSelecionadoReroll));
         print(" Nova " + DataCarta(item) + " Antiga " + DataCarta(itemSelecionadoReroll));
-        print(DataCarta(item) > DataCarta(itemSelecionadoReroll));
 
         if (vantagem)
         {
-            if (DataCarta(item) > DataCarta(itemSelecionadoReroll))
-                itemSelecionadoReroll.cartaAtual = item.cartaAtual;
+            if (DataCarta(item) < DataCarta(itemSelecionadoReroll))
+                alterou = true;
+            else if (NaipeCarta(item) < NaipeCarta(itemSelecionadoReroll) && DataCarta(item) == DataCarta(itemSelecionadoReroll))
+                alterou = true;
         }
         else
         {
-            if (DataCarta(item) < DataCarta(itemSelecionadoReroll))
-                itemSelecionadoReroll.cartaAtual = item.cartaAtual;
+            if (DataCarta(item) > DataCarta(itemSelecionadoReroll))
+                alterou = true;
+            else if (NaipeCarta(item) > NaipeCarta(itemSelecionadoReroll) && DataCarta(item) == DataCarta(itemSelecionadoReroll))
+                alterou = true;
         }
+
+        if (alterou) itemSelecionadoReroll.cartaAtual = item.cartaAtual;
+
+        itemSelecionadoReroll.MudarCartaIniciativa();
 
         Organizador();
         AtualizarOrdem();
@@ -149,7 +158,8 @@ public class InitiativeManager : MonoBehaviour
 
     private int DataCarta(IniciativaItem item)
     {
-        if (item == null || item.cartaAtual == null) return int.MaxValue;
+        // Tinha um item == null || para segurança
+        if (item.cartaAtual == null) return int.MaxValue;
 
         int index = cartas.IndexOf(item.cartaAtual._numero);
 
@@ -158,7 +168,7 @@ public class InitiativeManager : MonoBehaviour
 
     private int NaipeCarta(IniciativaItem item)
     {
-        if (item == null || item.cartaAtual == null) return int.MaxValue;
+        if (item.cartaAtual == null) return int.MaxValue;
 
         int index = naipe.IndexOf(item.cartaAtual._naipe);
         return index != -1 ? index : int.MaxValue;
